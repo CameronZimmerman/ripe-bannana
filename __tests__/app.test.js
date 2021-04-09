@@ -12,15 +12,15 @@ describe('ripe-bannana routes', () => {
       .post('/api/v1/actors')
       .send({
         name: 'John John',
-        date_of_birth: 'Jan 1, 2020',
-        place_of_birth: 'Johnsville'
+        dob: 'Jan 1, 2020',
+        pob: 'Johnsville'
       })
       .then((res) => {
         expect(res.body).toEqual({
           id: 1,
           name: 'John John',
-          date_of_birth: 'Jan 1, 2020',
-          place_of_birth: 'Johnsville'
+          dob: expect.any(String),
+          pob: 'Johnsville'
         })
       })
   })
