@@ -2,6 +2,7 @@ const request = require('supertest');
 const app = require('../lib/app');
 const Actor = require('../lib/models/Actors');
 const Studio = require('../lib/models/Studios');
+const Reviewer = require('../lib/models/Reviewers');
 const db = require('../lib/utils/db.js');
 
 describe('ripe-bannana routes', () => {
@@ -138,24 +139,82 @@ describe('ripe-bannana routes', () => {
       })
   })
 
-// Films
-it('post adds a Film to Film table', () => {
-  return request(app)
-    .post('/api/v1/studios')
-    .send({
-      name: 'Studio Ghibli',
-      city: 'Tokyo',
-      state: 'N/A',
-      country: 'Japan',
-    })
-    .then((res) => {
-      expect(res.body).toEqual({
-        id: 1,
-        name: 'Studio Ghibli',
-        city: 'Tokyo',
-        state: 'N/A',
-        country: 'Japan',
+// Reviewer
+  it('post adds a Reviewer to Reviewer table', () => {
+    return request(app)
+      .post('/api/v1/reviewers')
+      .send({
+        name: 'Bob Ooblong',
+        company: 'Dragonball Reviews'
       })
+      .then((res) => {
+        expect(res.body).toEqual({
+          id: 1,
+          name: 'Bob Ooblong',
+          company: 'Dragonball Reviews'
+        })
+      })
+  })
+
+  it('get by id returns a scecific Reviewer by id', async () => {
+    await Reviewer.create({
+      name: 'Bob Ooblong',
+      company: 'Dragonball Reviews'
     })
-})
+    return request(app)
+      .get('/api/v1/reviewers/1')
+      .then((res) => {
+        expect(res.body).toEqual({
+          id: 1,
+          name: 'Bob Ooblong',
+          company: 'Dragonball Reviews'
+        })
+      })
+  })
+
+  it('gets all reviewers', async () => {
+    await Reviewer.bulkCreate([{
+      name: 'Bob Ooblong',
+      company: 'Dragonball Reviews'
+    },
+    {
+      name: 'Carrot',
+      company: 'Dragonball Reviews'
+    }
+    ])
+    return request(app)
+      .get('/api/v1/reviewers')
+      .then((res) => {
+        expect(res.body).toEqual([{
+          id: 1,
+          name: 'Bob Ooblong',
+          company: 'Dragonball Reviews'
+        }, {
+          id: 2,
+          name: 'Carrot',
+          company: 'Dragonball Reviews'
+        }])
+      })
+  })
+
+  it('put changes a Reviewers data on the Reviewer table', async () => {
+    await Reviewer.create({
+      name: 'Bob Ooblong',
+      company: 'Dragonball Reviews'
+    });
+    return request(app)
+      .put('/api/v1/reviewers/1')
+      .send({
+        name: 'Bob Carrot',
+        company: 'Dragonball Reviews'
+      })
+      .then((res) => {
+        expect(res.body).toEqual({
+          id: 1,
+          name: 'Bob Carrot',
+          company: 'Dragonball Reviews'
+        })
+      })
+  })
+
 });
