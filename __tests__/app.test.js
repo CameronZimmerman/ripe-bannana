@@ -217,4 +217,19 @@ describe('ripe-bannana routes', () => {
       })
   })
 
+  it('delete a Reviewers data on the Reviewer table if there are no reviews', async () => {
+    await Reviewer.create({
+      name: 'Bob Ooblong',
+      company: 'Dragonball Reviews',
+      reviews: 'test'
+    });
+    return request(app)
+      .delete('/api/v1/reviewers/1')
+      .then((res) => {
+        expect(res.body).toEqual({
+          success: '👍'
+        })
+      })
+  })
+
 });
