@@ -46,17 +46,28 @@ describe('ripe-bannana routes', () => {
   })
 
   it('gets all actors', async () => {
-    await Actor.create({
+    await Actor.bulkCreate([{
       name: 'John John',
       dob: 'Jan 1, 2020',
       pob: 'Johnsville'
-    })
+    },
+    {
+      name: 'Jimmy John',
+      dob: 'Jan 1, 2000',
+      pob: 'Johnsville'
+    }
+    ])
     return request(app)
-      .get('/api/v1/actors/')
+      .get('/api/v1/actors')
       .then((res) => {
         expect(res.body).toEqual([{
           id: 1,
           name: 'John John',
+          dob: expect.any(String),
+          pob: 'Johnsville'
+        }, {
+          id: 2,
+          name: 'Jimmy John',
           dob: expect.any(String),
           pob: 'Johnsville'
         }])
