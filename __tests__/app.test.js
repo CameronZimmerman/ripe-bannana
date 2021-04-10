@@ -1,40 +1,42 @@
+require('../lib/utils/relationships');
 const request = require('supertest');
 const app = require('../lib/app');
 const Actor = require('../lib/models/Actors');
 const Studio = require('../lib/models/Studios');
 const Reviewer = require('../lib/models/Reviewers');
 const db = require('../lib/utils/db.js');
+const Reviews = require('../lib/models/Reviews');
 
 describe('ripe-bannana routes', () => {
   beforeEach(() => {
-    return db.sync({ force: true })
+    return db.sync({ force: true });
   });
 
-// Actors
+  // Actors
   it('post adds an Actor to Actor table', () => {
     return request(app)
       .post('/api/v1/actors')
       .send({
         name: 'John John',
         dob: 'Jan 1, 2020',
-        pob: 'Johnsville'
+        pob: 'Johnsville',
       })
       .then((res) => {
         expect(res.body).toEqual({
           id: 1,
           name: 'John John',
           dob: expect.any(String),
-          pob: 'Johnsville'
-        })
-      })
-  })
+          pob: 'Johnsville',
+        });
+      });
+  });
 
   it('get by id returns a scecific Actor by id', async () => {
     await Actor.create({
       name: 'John John',
       dob: 'Jan 1, 2020',
-      pob: 'Johnsville'
-    })
+      pob: 'Johnsville',
+    });
     return request(app)
       .get('/api/v1/actors/1')
       .then((res) => {
@@ -42,35 +44,39 @@ describe('ripe-bannana routes', () => {
           id: 1,
           name: 'John John',
           dob: expect.any(String),
-          pob: 'Johnsville'
-        })
-      })
-  })
+          pob: 'Johnsville',
+        });
+      });
+  });
 
   it('gets all actors', async () => {
-    await Actor.bulkCreate([{
-      name: 'John John',
-      dob: 'Jan 1, 2020',
-      pob: 'Johnsville'
-    },
-    {
-      name: 'Jimmy John',
-      dob: 'Jan 1, 2000',
-      pob: 'Johnsville'
-    }
-    ])
+    await Actor.bulkCreate([
+      {
+        name: 'John John',
+        dob: 'Jan 1, 2020',
+        pob: 'Johnsville',
+      },
+      {
+        name: 'Jimmy John',
+        dob: 'Jan 1, 2000',
+        pob: 'Johnsville',
+      },
+    ]);
     return request(app)
       .get('/api/v1/actors')
       .then((res) => {
-        expect(res.body).toEqual([{
-          id: 1,
-          name: 'John John',
-        }, {
-          id: 2,
-          name: 'Jimmy John',
-        }])
-      })
-  })
+        expect(res.body).toEqual([
+          {
+            id: 1,
+            name: 'John John',
+          },
+          {
+            id: 2,
+            name: 'Jimmy John',
+          },
+        ]);
+      });
+  });
 
   // Studio
   it('post adds a Studio to Studio table', () => {
@@ -89,16 +95,16 @@ describe('ripe-bannana routes', () => {
           city: 'Tokyo',
           state: 'N/A',
           country: 'Japan',
-        })
-      })
-  })
+        });
+      });
+  });
   it('get by id returns a scecific Studio by id', async () => {
     await Studio.create({
       name: 'Studio Ghibli',
       city: 'Tokyo',
       state: 'N/A',
       country: 'Japan',
-    })
+    });
     return request(app)
       .get('/api/v1/studios/1')
       .then((res) => {
@@ -108,128 +114,214 @@ describe('ripe-bannana routes', () => {
           city: 'Tokyo',
           state: 'N/A',
           country: 'Japan',
-        })
-      })
-  })
+        });
+      });
+  });
 
   it('gets all studios', async () => {
-    await Studio.bulkCreate([{
-      name: 'Studio Ghibli',
-      city: 'Tokyo',
-      state: 'N/A',
-      country: 'Japan',
-    },
-    {
-      name: 'Disney',
-      city: 'Los Angeles',
-      state: 'California',
-      country: 'United States',
-    }
-    ])
+    await Studio.bulkCreate([
+      {
+        name: 'Studio Ghibli',
+        city: 'Tokyo',
+        state: 'N/A',
+        country: 'Japan',
+      },
+      {
+        name: 'Disney',
+        city: 'Los Angeles',
+        state: 'California',
+        country: 'United States',
+      },
+    ]);
     return request(app)
       .get('/api/v1/studios')
       .then((res) => {
-        expect(res.body).toEqual([{
-          id: 1,
-          name: 'Studio Ghibli'
-        }, {
-          id: 2,
-          name: 'Disney'
-        }])
-      })
-  })
+        expect(res.body).toEqual([
+          {
+            id: 1,
+            name: 'Studio Ghibli',
+          },
+          {
+            id: 2,
+            name: 'Disney',
+          },
+        ]);
+      });
+  });
 
-// Reviewer
+  // Reviewer
   it('post adds a Reviewer to Reviewer table', () => {
     return request(app)
       .post('/api/v1/reviewers')
       .send({
         name: 'Bob Ooblong',
-        company: 'Dragonball Reviews'
+        company: 'Dragonball Reviews',
       })
       .then((res) => {
         expect(res.body).toEqual({
           id: 1,
           name: 'Bob Ooblong',
-          company: 'Dragonball Reviews'
-        })
-      })
-  })
+          company: 'Dragonball Reviews',
+        });
+      });
+  });
 
   it('get by id returns a scecific Reviewer by id', async () => {
     await Reviewer.create({
       name: 'Bob Ooblong',
-      company: 'Dragonball Reviews'
-    })
+      company: 'Dragonball Reviews',
+    });
+    await Reviews.create({
+      rating: 5,
+      review: 'it was great',
+      ReviewerId: 1,
+    });
     return request(app)
       .get('/api/v1/reviewers/1')
       .then((res) => {
         expect(res.body).toEqual({
           id: 1,
           name: 'Bob Ooblong',
-          company: 'Dragonball Reviews'
-        })
-      })
-  })
+          company: 'Dragonball Reviews',
+          Reviews: [
+            {
+              rating: 5,
+              review: 'it was great',
+              ReviewerId: 1,
+              id: 1
+            },
+          ],
+        });
+      });
+  });
 
   it('gets all reviewers', async () => {
-    await Reviewer.bulkCreate([{
-      name: 'Bob Ooblong',
-      company: 'Dragonball Reviews'
-    },
-    {
-      name: 'Carrot',
-      company: 'Dragonball Reviews'
-    }
-    ])
+    await Reviewer.bulkCreate([
+      {
+        name: 'Bob Ooblong',
+        company: 'Dragonball Reviews',
+      },
+      {
+        name: 'Carrot',
+        company: 'Dragonball Reviews',
+      },
+    ]);
     return request(app)
       .get('/api/v1/reviewers')
       .then((res) => {
-        expect(res.body).toEqual([{
-          id: 1,
-          name: 'Bob Ooblong',
-          company: 'Dragonball Reviews'
-        }, {
-          id: 2,
-          name: 'Carrot',
-          company: 'Dragonball Reviews'
-        }])
-      })
-  })
+        expect(res.body).toEqual([
+          {
+            id: 1,
+            name: 'Bob Ooblong',
+            company: 'Dragonball Reviews',
+          },
+          {
+            id: 2,
+            name: 'Carrot',
+            company: 'Dragonball Reviews',
+          },
+        ]);
+      });
+  });
 
   it('put changes a Reviewers data on the Reviewer table', async () => {
     await Reviewer.create({
       name: 'Bob Ooblong',
-      company: 'Dragonball Reviews'
+      company: 'Dragonball Reviews',
     });
     return request(app)
       .put('/api/v1/reviewers/1')
       .send({
         name: 'Bob Carrot',
-        company: 'Dragonball Reviews'
+        company: 'Dragonball Reviews',
       })
       .then((res) => {
         expect(res.body).toEqual({
           id: 1,
           name: 'Bob Carrot',
-          company: 'Dragonball Reviews'
-        })
-      })
-  })
+          company: 'Dragonball Reviews',
+        });
+      });
+  });
 
   it('delete a Reviewers data on the Reviewer table if there are no reviews', async () => {
     await Reviewer.create({
       name: 'Bob Ooblong',
       company: 'Dragonball Reviews',
-      reviews: 'test'
     });
     return request(app)
       .delete('/api/v1/reviewers/1')
       .then((res) => {
         expect(res.body).toEqual({
-          success: '👍'
-        })
-      })
-  })
+          success: '👍',
+        });
+      });
+  });
 
+  // Review
+  it('Creates a Review on the Review table via POST', async () => {
+    await Reviewer.create({
+      name: 'Bob Ooblong',
+      company: 'Dragonball Reviews',
+    });
+    return request(app)
+      .post('/api/v1/reviews')
+      .send({
+        rating: 4,
+        ReviewerId: 1,
+        review: 'It was awesome',
+        FilmId: 1,
+      })
+      .then((res) => {
+        expect(res.body).toEqual({
+          id: 1,
+          rating: 4,
+          ReviewerId: 1,
+          review: 'It was awesome',
+          // FilmId: 1,
+        });
+      });
+  });
+
+  it('Gets all Reviews from the Review table via GET', async () => {
+    await Reviewer.create({
+      name: 'Bob Ooblong',
+      company: 'Dragonball Reviews',
+    });
+    await Reviews.bulkCreate(
+      {
+        rating: 3,
+        ReviewerId: 1,
+        review: 'It was awesome',
+        FilmId: 1,
+      },
+      {
+        rating: 4,
+        ReviewerId: 1,
+        review: 'It was super awesome',
+        FilmId: 1,
+      }
+    );
+
+    return request(app)
+      .get('/api/v1/reviews')
+      .then((res) => {
+        expect(res.body).toEqual([
+          {
+            id: 1,
+            rating: 4,
+            ReviewerId: 1,
+            review: 'It was awesome',
+            // FilmId: 1,
+          },
+          {
+            id: 2,
+            ReviewerId: 1,
+            rating: 4,
+            review: 'It was super awesome',
+            // FilmId: 1,
+          },
+        ]);
+      });
+  });
 });
