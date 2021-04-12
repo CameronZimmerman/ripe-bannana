@@ -7,7 +7,7 @@ const Reviewer = require('../lib/models/Reviewers');
 const Film = require('../lib/models/Films');
 const db = require('../lib/utils/db.js');
 const Reviews = require('../lib/models/Reviews');
-const { FilmActorsAssociation } = require('../lib/utils/relationships');
+const { ActorFilmsAssociation, FilmActorsAssociation } = require('../lib/utils/relationships');
 
 describe('ripe-bannana routes', () => {
   beforeEach(() => {
@@ -38,7 +38,30 @@ describe('ripe-bannana routes', () => {
       name: 'John John',
       dob: 'Jan 1, 2020',
       pob: 'Johnsville',
+      films: [{ title: 'Its a Movie', released: 1990}]
+    },{ include: [
+      {
+        association: ActorFilmsAssociation,
+        as: 'films'
+      }]
     });
+    await Studio.create({
+      name: 'Studio Ghibli',
+      city: 'Tokyo',
+      state: 'N/A',
+      country: 'Japan',
+    });
+    await Film.create({
+      title: 'Its a Movie',
+      StudioId: 1,
+      released: 1990,
+      cast: [
+        {
+          name: 'George',
+        },
+      ],
+    });
+
     return request(app)
       .get('/api/v1/actors/1')
       .then((res) => {
@@ -47,6 +70,7 @@ describe('ripe-bannana routes', () => {
           name: 'John John',
           dob: expect.any(String),
           pob: 'Johnsville',
+          films: [{id: 1, title: 'Its a Movie', released: 1990}]
         });
       });
   });
@@ -107,6 +131,18 @@ describe('ripe-bannana routes', () => {
       state: 'N/A',
       country: 'Japan',
     });
+    await Film.create({
+      title: 'Its a Movie',
+      StudioId: 1,
+      released: 1990,
+      cast: [
+        {
+          role: 'George',
+          actorId: 1,
+        },
+      ],
+    });
+
     return request(app)
       .get('/api/v1/studios/1')
       .then((res) => {
@@ -116,6 +152,7 @@ describe('ripe-bannana routes', () => {
           city: 'Tokyo',
           state: 'N/A',
           country: 'Japan',
+          Films: [{id: 1, title: 'Its a Movie'}]
         });
       });
   });
@@ -169,6 +206,23 @@ describe('ripe-bannana routes', () => {
   });
 
   it('get by id returns a scecific Reviewer by id', async () => {
+    await Studio.create({
+      name: 'Studio Ghibli',
+      city: 'Tokyo',
+      state: 'N/A',
+      country: 'Japan',
+    });
+    await Film.create({
+      title: 'Its a Movie',
+      StudioId: 1,
+      released: 1990,
+      cast: [
+        {
+          role: 'George',
+          actorId: 1,
+        },
+      ],
+    });
     await Reviewer.create({
       name: 'Bob Ooblong',
       company: 'Dragonball Reviews',
@@ -177,9 +231,10 @@ describe('ripe-bannana routes', () => {
       rating: 5,
       review: 'it was great',
       ReviewerId: 1,
+      FilmId: 1,
     });
     return request(app)
-      .get('/api/v1/reviewers/1')
+    .get('/api/v1/reviewers/1')
       .then((res) => {
         expect(res.body).toEqual({
           id: 1,
@@ -190,7 +245,9 @@ describe('ripe-bannana routes', () => {
               rating: 5,
               review: 'it was great',
               ReviewerId: 1,
+              FilmId: 1,
               id: 1,
+              Film: {id: 1, title: 'Its a Movie'}
             },
           ],
         });
@@ -262,6 +319,23 @@ describe('ripe-bannana routes', () => {
   });
 
   it('delete a Reviewers data on the Reviewer table if there are no reviews', async () => {
+    await Studio.create({
+      name: 'Studio Ghibli',
+      city: 'Tokyo',
+      state: 'N/A',
+      country: 'Japan',
+    });
+    await Film.create({
+      title: 'Its a Movie',
+      StudioId: 1,
+      released: 1990,
+      cast: [
+        {
+          role: 'George',
+          actorId: 1,
+        },
+      ],
+    });
     await Reviewer.create({
       name: 'Bob Ooblong',
       company: 'Dragonball Reviews',
@@ -288,6 +362,23 @@ describe('ripe-bannana routes', () => {
 
   // Review
   it('Creates a Review on the Review table via POST', async () => {
+    await Studio.create({
+      name: 'Studio Ghibli',
+      city: 'Tokyo',
+      state: 'N/A',
+      country: 'Japan',
+    });
+    await Film.create({
+      title: 'Its a Movie',
+      StudioId: 1,
+      released: 1990,
+      cast: [
+        {
+          role: 'George',
+          actorId: 1,
+        },
+      ],
+    });
     await Reviewer.create({
       name: 'Bob Ooblong',
       company: 'Dragonball Reviews',
@@ -312,6 +403,23 @@ describe('ripe-bannana routes', () => {
   });
 
   it('Gets all Reviews from the Review table via GET', async () => {
+    await Studio.create({
+      name: 'Studio Ghibli',
+      city: 'Tokyo',
+      state: 'N/A',
+      country: 'Japan',
+    });
+    await Film.create({
+      title: 'Its a Movie',
+      StudioId: 1,
+      released: 1990,
+      cast: [
+        {
+          role: 'George',
+          actorId: 1,
+        },
+      ],
+    });
     await Reviewer.create({
       name: 'Bob Ooblong',
       company: 'Dragonball Reviews',
@@ -339,12 +447,14 @@ describe('ripe-bannana routes', () => {
             id: 2,
             rating: 4,
             review: 'It was super awesome',
+            Film: { id: 1, title: 'Its a Movie'}
             // FilmId: 1,
           },
           {
             id: 1,
             rating: 3,
             review: 'It was awesome',
+            Film: { id: 1, title: 'Its a Movie'}
             // FilmId: 1,
           },
         ]);
@@ -352,6 +462,23 @@ describe('ripe-bannana routes', () => {
   });
 
   it('delete Review data on the Review table', async () => {
+    await Studio.create({
+      name: 'Studio Ghibli',
+      city: 'Tokyo',
+      state: 'N/A',
+      country: 'Japan',
+    });
+    await Film.create({
+      title: 'Its a Movie',
+      StudioId: 1,
+      released: 1990,
+      cast: [
+        {
+          role: 'George',
+          actorId: 1,
+        },
+      ],
+    });
     await Reviewer.create({
       name: 'Bob Ooblong',
       company: 'Dragonball Reviews',
@@ -381,11 +508,7 @@ describe('ripe-bannana routes', () => {
       state: 'N/A',
       country: 'Japan',
     });
-    await Actor.create({
-      name: 'John John',
-      dob: 'Jan 1, 2020',
-      pob: 'Johnsville',
-    });
+
     return request(app)
       .post('/api/v1/films')
       .send({
@@ -394,8 +517,9 @@ describe('ripe-bannana routes', () => {
         released: 1990,
         cast: [
           {
-            role: 'George',
-            actorId: 1,
+            name: 'George',
+            pob: 'Georgia',
+            dob:  1990
           },
         ],
       })
@@ -406,8 +530,10 @@ describe('ripe-bannana routes', () => {
           released: 1990,
           cast: [
             {
-              role: 'George',
-              actorId: 1,
+              name: 'George',
+              id: 1,
+              pob: 'Georgia',
+              dob:  expect.any(String)
             },
           ],
           id: 1,
@@ -452,7 +578,7 @@ describe('ripe-bannana routes', () => {
       });
   });
 
-  it.only('Gets a film by id from the film table via GET', async () => {
+  it('Gets a film by id from the film table via GET', async () => {
     await Actor.create({
       name: 'John John',
       dob: 'Jan 1, 2020',
