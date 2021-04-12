@@ -244,7 +244,7 @@ describe('ripe-bannana routes', () => {
       });
   });
 
-  it.only('delete a Reviewers data on the Reviewer table if there are no reviews', async () => {
+  it('delete a Reviewers data on the Reviewer table if there are no reviews', async () => {
     await Reviewer.create({
       name: 'Bob Ooblong',
       company: 'Dragonball Reviews',
@@ -260,7 +260,7 @@ describe('ripe-bannana routes', () => {
       });
   });
 
-  it.only('delete a Reviewers data on the Reviewer table if there are no reviews', async () => {
+  it('delete a Reviewers data on the Reviewer table if there are no reviews', async () => {
     await Reviewer.create({
       name: 'Bob Ooblong',
       company: 'Dragonball Reviews',
@@ -346,4 +346,27 @@ describe('ripe-bannana routes', () => {
         ]);
       });
   });
+
+  it.only('delete Review data on the Review table', async () => {
+    await Reviewer.create({
+      name: 'Bob Ooblong',
+      company: 'Dragonball Reviews',
+    });
+    await Reviews.bulkCreate([
+      {
+        rating: 3,
+        ReviewerId: 1,
+        review: 'It was awesome',
+        FilmId: 1,
+      },
+    ]);
+    return request(app)
+    .delete('/api/v1/reviews/1')
+    .then((res) => {
+      expect(res.body).toEqual({
+        success: '👍',
+      });
+    });
+  });
+    
 });
