@@ -249,6 +249,22 @@ describe('ripe-bannana routes', () => {
       name: 'Bob Ooblong',
       company: 'Dragonball Reviews',
     });
+
+
+    return request(app)
+      .delete('/api/v1/reviewers/1')
+      .then((res) => {
+        expect(res.body).toEqual({
+          success: '👍',
+        });
+      });
+  });
+
+  it.only('delete a Reviewers data on the Reviewer table if there are no reviews', async () => {
+    await Reviewer.create({
+      name: 'Bob Ooblong',
+      company: 'Dragonball Reviews',
+    });
     await Reviews.bulkCreate([
       {
         rating: 3,
@@ -256,19 +272,14 @@ describe('ripe-bannana routes', () => {
         review: 'It was awesome',
         FilmId: 1,
       },
-      {
-        rating: 4,
-        ReviewerId: 1,
-        review: 'It was super awesome',
-        FilmId: 1,
-      }]
-    );
+    ]);
+
     return request(app)
       .delete('/api/v1/reviewers/1')
       .then((res) => {
-        expect(res.body).toEqual({
-          success: '👍',
-        });
+        expect(res.body).toEqual({message: "update or delete on table \"Reviewers\" violates foreign key constraint \"Reviews_ReviewerId_fkey\" on table \"Reviews\"",
+        status: 500
+      });
       });
   });
 
