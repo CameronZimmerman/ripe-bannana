@@ -189,7 +189,7 @@ describe('ripe-bannana routes', () => {
               rating: 5,
               review: 'it was great',
               ReviewerId: 1,
-              id: 1
+              id: 1,
             },
           ],
         });
@@ -251,7 +251,6 @@ describe('ripe-bannana routes', () => {
       company: 'Dragonball Reviews',
     });
 
-
     return request(app)
       .delete('/api/v1/reviewers/1')
       .then((res) => {
@@ -278,9 +277,11 @@ describe('ripe-bannana routes', () => {
     return request(app)
       .delete('/api/v1/reviewers/1')
       .then((res) => {
-        expect(res.body).toEqual({message: "update or delete on table \"Reviewers\" violates foreign key constraint \"Reviews_ReviewerId_fkey\" on table \"Reviews\"",
-        status: 500
-      });
+        expect(res.body).toEqual({
+          message:
+            'update or delete on table "Reviewers" violates foreign key constraint "Reviews_ReviewerId_fkey" on table "Reviews"',
+          status: 500,
+        });
       });
   });
 
@@ -326,24 +327,25 @@ describe('ripe-bannana routes', () => {
         ReviewerId: 1,
         review: 'It was super awesome',
         FilmId: 1,
-      }]
-    );
+      },
+    ]);
 
     return request(app)
       .get('/api/v1/reviews')
       .then((res) => {
-        expect(res.body).toEqual([{
-          id: 2,
-          rating: 4,
-          review: 'It was super awesome',
-          // FilmId: 1,
-        },
-        {
-          id: 1,
-          rating: 3,
-          review: 'It was awesome',
-          // FilmId: 1,
-        }
+        expect(res.body).toEqual([
+          {
+            id: 2,
+            rating: 4,
+            review: 'It was super awesome',
+            // FilmId: 1,
+          },
+          {
+            id: 1,
+            rating: 3,
+            review: 'It was awesome',
+            // FilmId: 1,
+          },
         ]);
       });
   });
@@ -362,16 +364,16 @@ describe('ripe-bannana routes', () => {
       },
     ]);
     return request(app)
-    .delete('/api/v1/reviews/1')
-    .then((res) => {
-      expect(res.body).toEqual({
-        success: '👍',
+      .delete('/api/v1/reviews/1')
+      .then((res) => {
+        expect(res.body).toEqual({
+          success: '👍',
+        });
       });
-    });
   });
-    
+
   // Films
-  it.only('Creates a Film on the Film table via POST', async () => {
+  it('Creates a Film on the Film table via POST', async () => {
     await Studio.create({
       name: 'Studio Ghibli',
       city: 'Tokyo',
@@ -389,22 +391,63 @@ describe('ripe-bannana routes', () => {
         title: 'Its a Movie',
         StudioId: 1,
         released: 1990,
-        cast: [{
-          role: 'George',
-          actorId: 1,
-        }]
+        cast: [
+          {
+            role: 'George',
+            actorId: 1,
+          },
+        ],
       })
       .then((res) => {
         expect(res.body).toEqual({
           title: 'Its a Movie',
           StudioId: 1,
           released: 1990,
-          cast: [{
-            role: 'George',
-            actorId: 1,
-          }],
-          id: 1
+          cast: [
+            {
+              role: 'George',
+              actorId: 1,
+            },
+          ],
+          id: 1,
         });
+      });
+  });
+
+  it.only('Gets all films from the film table via GET', async () => {
+    await Studio.create({
+      name: 'Studio Ghibli',
+      city: 'Tokyo',
+      state: 'N/A',
+      country: 'Japan',
+    });
+    await Actor.create({
+      name: 'John John',
+      dob: 'Jan 1, 2020',
+      pob: 'Johnsville',
+    });
+    await Film.create({
+      title: 'Its a Movie',
+      StudioId: 1,
+      released: 1990,
+      cast: [
+        {
+          role: 'George',
+          actorId: 1,
+        },
+      ],
+    });
+    return request(app)
+      .get('/api/v1/films')
+      .then((res) => {
+        expect(res.body).toEqual([
+          {
+            id: 1,
+            Studio: { id: 1, name: 'Studio Ghibli' },
+            title: 'Its a Movie',
+            released: 1990,
+          },
+        ]);
       });
   });
 });
