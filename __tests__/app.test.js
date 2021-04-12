@@ -7,6 +7,7 @@ const Reviewer = require('../lib/models/Reviewers');
 const Film = require('../lib/models/Films');
 const db = require('../lib/utils/db.js');
 const Reviews = require('../lib/models/Reviews');
+const { FilmActorsAssociation } = require('../lib/utils/relationships');
 
 describe('ripe-bannana routes', () => {
   beforeEach(() => {
@@ -305,7 +306,7 @@ describe('ripe-bannana routes', () => {
           rating: 4,
           ReviewerId: 1,
           review: 'It was awesome',
-          // FilmId: 1,
+          FilmId: 1,
         });
       });
   });
@@ -452,40 +453,49 @@ describe('ripe-bannana routes', () => {
   });
 
   it.only('Gets a film by id from the film table via GET', async () => {
-    await Reviewer.create({
-      name: 'Bob Ooblong',
-      company: 'Dragonball Reviews',
+    await Actor.create({
+      name: 'John John',
+      dob: 'Jan 1, 2020',
+      pob: 'Johnsville',
     });
-    await Reviews.bulkCreate([
-      {
-        rating: 3,
-        ReviewerId: 1,
-        review: 'It was awesome',
-        FilmId: 1,
-      },
-    ]);
     await Studio.create({
       name: 'Studio Ghibli',
       city: 'Tokyo',
       state: 'N/A',
       country: 'Japan',
     });
-    await Actor.create({
-      name: 'John John',
-      dob: 'Jan 1, 2020',
-      pob: 'Johnsville',
+    await Film.create(
+      {
+        title: 'Its a Movie',
+        StudioId: 1,
+        released: 1990,
+        cast: [
+          {
+            name: 'George',
+          },
+        ],
+      },
+      {
+        include: [
+          {
+            association: FilmActorsAssociation,
+            as: 'cast',
+          },
+        ],
+      }
+    );
+    await Reviewer.create({
+      name: 'Bob Ooblong',
+      company: 'Dragonball Reviews',
     });
-    await Film.create({
-      title: 'Its a Movie',
-      StudioId: 1,
-      released: 1990,
-      cast: [
-        {
-          role: 'George',
-          actorId: 1,
-        },
-      ],
-    });
+    await Reviews.bulkCreate([
+      {
+        rating: 5,
+        ReviewerId: 1,
+        review: 'It was awesome',
+        FilmId: 1,
+      },
+    ]);
     return request(app)
       .get('/api/v1/films/1')
       .then((res) => {
@@ -496,16 +506,15 @@ describe('ripe-bannana routes', () => {
           released: 1990,
           cast: [
             {
-              id: 1,
-              role: 'George',
-              Actor: { id: 1, name: 'John John' },
+              id: 2,
+              name: 'George',
             },
           ],
           Reviews: [
             {
               id: 1,
               rating: 5,
-              review: 'it was great. John John was magical',
+              review: 'It was awesome',
               Reviewer: { id: 1, name: 'Bob Ooblong' },
             },
           ],
