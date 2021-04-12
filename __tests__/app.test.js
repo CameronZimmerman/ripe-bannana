@@ -348,7 +348,7 @@ describe('ripe-bannana routes', () => {
       });
   });
 
-  it.only('delete Review data on the Review table', async () => {
+  it('delete Review data on the Review table', async () => {
     await Reviewer.create({
       name: 'Bob Ooblong',
       company: 'Dragonball Reviews',
@@ -371,7 +371,7 @@ describe('ripe-bannana routes', () => {
   });
     
   // Films
-  it('Creates a Film on the Film table via POST', async () => {
+  it.only('Creates a Film on the Film table via POST', async () => {
     await Studio.create({
       name: 'Studio Ghibli',
       city: 'Tokyo',
@@ -384,10 +384,10 @@ describe('ripe-bannana routes', () => {
       pob: 'Johnsville',
     });
     return request(app)
-      .post('/api/v1/reviews')
+      .post('/api/v1/films')
       .send({
         title: 'Its a Movie',
-        studioId: 1,
+        StudioId: 1,
         released: 1990,
         cast: [{
           role: 'George',
@@ -397,13 +397,13 @@ describe('ripe-bannana routes', () => {
       .then((res) => {
         expect(res.body).toEqual({
           title: 'Its a Movie',
-          studioId: 1,
+          StudioId: 1,
           released: 1990,
           cast: [{
             role: 'George',
             actorId: 1,
           }],
-          filmId: 1
+          id: 1
         });
       });
   });
