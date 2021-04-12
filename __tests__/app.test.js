@@ -283,12 +283,12 @@ describe('ripe-bannana routes', () => {
       });
   });
 
-  it('Gets all Reviews from the Review table via GET', async () => {
+  it.only('Gets all Reviews from the Review table via GET', async () => {
     await Reviewer.create({
       name: 'Bob Ooblong',
       company: 'Dragonball Reviews',
     });
-    await Reviews.bulkCreate(
+    await Reviews.bulkCreate([
       {
         rating: 3,
         ReviewerId: 1,
@@ -300,27 +300,26 @@ describe('ripe-bannana routes', () => {
         ReviewerId: 1,
         review: 'It was super awesome',
         FilmId: 1,
-      }
+      }]
     );
 
     return request(app)
       .get('/api/v1/reviews')
       .then((res) => {
-        expect(res.body).toEqual([
-          {
-            id: 1,
-            rating: 4,
-            ReviewerId: 1,
-            review: 'It was awesome',
-            // FilmId: 1,
-          },
-          {
-            id: 2,
-            ReviewerId: 1,
-            rating: 4,
-            review: 'It was super awesome',
-            // FilmId: 1,
-          },
+        expect(res.body).toEqual([{
+          id: 2,
+          ReviewerId: 1,
+          rating: 4,
+          review: 'It was super awesome',
+          // FilmId: 1,
+        },
+        {
+          id: 1,
+          rating: 3,
+          ReviewerId: 1,
+          review: 'It was awesome',
+          // FilmId: 1,
+        }
         ]);
       });
   });
