@@ -4,6 +4,7 @@ const app = require('../lib/app');
 const Actor = require('../lib/models/Actors');
 const Studio = require('../lib/models/Studios');
 const Reviewer = require('../lib/models/Reviewers');
+const Film = require('../lib/models/Films');
 const db = require('../lib/utils/db.js');
 const Reviews = require('../lib/models/Reviews');
 
@@ -369,4 +370,41 @@ describe('ripe-bannana routes', () => {
     });
   });
     
+  // Films
+  it('Creates a Film on the Film table via POST', async () => {
+    await Studio.create({
+      name: 'Studio Ghibli',
+      city: 'Tokyo',
+      state: 'N/A',
+      country: 'Japan',
+    });
+    await Actor.create({
+      name: 'John John',
+      dob: 'Jan 1, 2020',
+      pob: 'Johnsville',
+    });
+    return request(app)
+      .post('/api/v1/reviews')
+      .send({
+        title: 'Its a Movie',
+        studioId: 1,
+        released: 1990,
+        cast: [{
+          role: 'George',
+          actorId: 1,
+        }]
+      })
+      .then((res) => {
+        expect(res.body).toEqual({
+          title: 'Its a Movie',
+          studioId: 1,
+          released: 1990,
+          cast: [{
+            role: 'George',
+            actorId: 1,
+          }],
+          filmId: 1
+        });
+      });
+  });
 });
