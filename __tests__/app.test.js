@@ -414,7 +414,7 @@ describe('ripe-bannana routes', () => {
       });
   });
 
-  it.only('Gets all films from the film table via GET', async () => {
+  it('Gets all films from the film table via GET', async () => {
     await Studio.create({
       name: 'Studio Ghibli',
       city: 'Tokyo',
@@ -448,6 +448,68 @@ describe('ripe-bannana routes', () => {
             released: 1990,
           },
         ]);
+      });
+  });
+
+  it.only('Gets a film by id from the film table via GET', async () => {
+    await Reviewer.create({
+      name: 'Bob Ooblong',
+      company: 'Dragonball Reviews',
+    });
+    await Reviews.bulkCreate([
+      {
+        rating: 3,
+        ReviewerId: 1,
+        review: 'It was awesome',
+        FilmId: 1,
+      },
+    ]);
+    await Studio.create({
+      name: 'Studio Ghibli',
+      city: 'Tokyo',
+      state: 'N/A',
+      country: 'Japan',
+    });
+    await Actor.create({
+      name: 'John John',
+      dob: 'Jan 1, 2020',
+      pob: 'Johnsville',
+    });
+    await Film.create({
+      title: 'Its a Movie',
+      StudioId: 1,
+      released: 1990,
+      cast: [
+        {
+          role: 'George',
+          actorId: 1,
+        },
+      ],
+    });
+    return request(app)
+      .get('/api/v1/films/1')
+      .then((res) => {
+        expect(res.body).toEqual({
+          id: 1,
+          Studio: { id: 1, name: 'Studio Ghibli' },
+          title: 'Its a Movie',
+          released: 1990,
+          cast: [
+            {
+              id: 1,
+              role: 'George',
+              Actor: { id: 1, name: 'John John' },
+            },
+          ],
+          Reviews: [
+            {
+              id: 1,
+              rating: 5,
+              review: 'it was great. John John was magical',
+              Reviewer: { id: 1, name: 'Bob Ooblong' },
+            },
+          ],
+        });
       });
   });
 });
